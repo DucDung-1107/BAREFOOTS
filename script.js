@@ -7,10 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const attachButton = document.getElementById('attach-button');
     const fileInput = document.getElementById('file-input');
 
-    const botAvatarUrl = 'https://placekitten.com/g/40/40'; // Replace with your bot's avatar
-    const userAvatarUrl = 'https://i.pravatar.cc/40?u=currentUser'; // Replace or make dynamic
+    const botAvatarUrl = 'https://placekitten.com/g/40/40';
+    const userAvatarUrl = 'https://i.pravatar.cc/40?u=currentUser';
 
-    // Initial welcome message
     setTimeout(() => {
         addMessageToChat("Hello! I'm FinnyMate. How can I assist you today?", 'bot');
     }, 500);
@@ -21,51 +20,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userMessage) {
             addMessageToChat(userMessage, 'user');
             messageInput.value = '';
-            messageInput.style.height = 'auto'; // Reset height after sending
+            messageInput.style.height = 'auto';
             processUserMessage(userMessage);
         }
     });
 
-    // Auto-resize textarea (simple version)
     messageInput.addEventListener('input', () => {
         messageInput.style.height = 'auto';
-        messageInput.style.height = (messageInput.scrollHeight) + 'px';
+        messageInput.style.height = messageInput.scrollHeight + 'px';
     });
-    
-    // Prevent form submission on Enter key if Shift is not pressed, for multiline.
-    // But for a chat, usually Enter sends.
+
     messageInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            messageForm.requestSubmit(); // Use requestSubmit for proper form submission
+            messageForm.requestSubmit();
         }
     });
 
-
     emojiButton.addEventListener('click', () => {
-        // Placeholder for emoji picker functionality
-        // For now, you can manually add an emoji to the input
-        // messageInput.value += '😀';
-        // messageInput.focus();
         alert("Emoji picker coming soon!");
     });
 
     attachButton.addEventListener('click', () => {
-        fileInput.click(); // Trigger hidden file input
+        fileInput.click();
     });
 
     fileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
             addMessageToChat(`File attached: ${file.name} (preview/upload not implemented)`, 'user');
-            // Here you would typically handle the file upload process
-            // For this demo, we're just acknowledging it.
-            // You might want to send a message from the bot acknowledging the file.
             setTimeout(() => {
-                 addMessageToChat(`Thanks for sharing "${file.name}". I can't process files yet, but noted!`, 'bot');
+                addMessageToChat(`Thanks for sharing "${file.name}". I can't process files yet, but noted!`, 'bot');
             }, 1000);
         }
-        // Reset file input for next selection
         fileInput.value = '';
     });
 
@@ -82,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageContentDiv.classList.add('message-content');
 
         const textP = document.createElement('p');
-        textP.innerHTML = parseMessageText(text); // Use innerHTML to render potential HTML (like line breaks)
+        textP.innerHTML = parseMessageText(text);
 
         const timestampSpan = document.createElement('span');
         timestampSpan.classList.add('timestamp');
@@ -90,22 +77,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         messageContentDiv.appendChild(textP);
         messageContentDiv.appendChild(timestampSpan);
-        
+
         messageDiv.appendChild(avatarImg);
         messageDiv.appendChild(messageContentDiv);
-        
+
         messagesContainer.appendChild(messageDiv);
         scrollToBottom();
 
-        // Trigger reflow for animation
-        void messageDiv.offsetWidth; 
+        void messageDiv.offsetWidth;
         messageDiv.style.opacity = '1';
         messageDiv.style.transform = 'translateY(0)';
     }
 
     function parseMessageText(text) {
-        // Simple parser: replace newlines with <br>
-        // For more complex formatting (markdown, links), this would be more involved.
         return text.replace(/\n/g, '<br>');
     }
 
@@ -122,15 +106,34 @@ document.addEventListener('DOMContentLoaded', () => {
         typingIndicator.style.display = 'none';
     }
 
-    function processUserMessage(message) {
+    async function processUserMessage(message) {
         showTypingIndicator();
-        // Simulate bot thinking time
-        const thinkingTime = Math.random() * 1500 + 500; // 0.5s to 2s
-        setTimeout(() => {
-            const botResponse = getBotResponse(message);
+        try {
+            const response = await fetch("http://127.0.0.1:8000/api/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    prompt: message,
+                    max_new_tokens: 200,
+                    temperature: 0.7,
+                    do_sample: true
+                })
+            });
+
+            const data = await response.json();
             hideTypingIndicator();
-            addMessageToChat(botResponse, 'bot');
-        }, thinkingTime);
+
+            if (data.response) {
+                addMessageToChat(data.response, 'bot');
+            } else {
+                throw new Error("Empty response");
+            }
+        } catch (error) {
+            hideTypingIndicator();
+            console.error("Fallback to local botResponse due to error:", error);
+            const fallbackResponse = getBotResponse(message);
+            addMessageToChat(fallbackResponse, 'bot');
+        }
     }
 
     function getBotResponse(userInput) {
