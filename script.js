@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 addMessageToChat(`Thanks for sharing "${file.name}". I can't process files yet, but noted!`, 'bot');
             }, 1000);
         }
-        fileInput.value = '';
+        fileInput.value = ''; // Clear the input so the same file can be selected again if needed
     });
 
     function addMessageToChat(text, sender) {
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageContentDiv.classList.add('message-content');
 
         const textP = document.createElement('p');
-        textP.innerHTML = parseMessageText(text);
+        textP.innerHTML = parseMessageText(text); // Use innerHTML for <br> tags
 
         const timestampSpan = document.createElement('span');
         timestampSpan.classList.add('timestamp');
@@ -78,18 +78,27 @@ document.addEventListener('DOMContentLoaded', () => {
         messageContentDiv.appendChild(textP);
         messageContentDiv.appendChild(timestampSpan);
 
-        messageDiv.appendChild(avatarImg);
-        messageDiv.appendChild(messageContentDiv);
+        if (sender === 'user') {
+            messageDiv.appendChild(messageContentDiv); // Content first for user
+            messageDiv.appendChild(avatarImg);
+        } else {
+            messageDiv.appendChild(avatarImg); // Avatar first for bot
+            messageDiv.appendChild(messageContentDiv);
+        }
 
         messagesContainer.appendChild(messageDiv);
         scrollToBottom();
 
-        void messageDiv.offsetWidth;
+        // For fade-in animation
+        void messageDiv.offsetWidth; // Trigger reflow
         messageDiv.style.opacity = '1';
         messageDiv.style.transform = 'translateY(0)';
     }
 
     function parseMessageText(text) {
+        // Sanitize text before inserting as HTML to prevent XSS if text could come from untrusted source
+        // For this example, assuming text from user/bot is safe or will be simple text.
+        // A more robust solution would use a sanitizer library or carefully escape HTML.
         return text.replace(/\n/g, '<br>');
     }
 
@@ -120,13 +129,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
+            if (!response.ok) { // Check for HTTP errors
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+
             const data = await response.json();
             hideTypingIndicator();
 
-            if (data.response) {
+            if (data && data.response) { // Ensure data and data.response exist
                 addMessageToChat(data.response, 'bot');
             } else {
-                throw new Error("Empty response");
+                throw new Error("Empty or malformed response from API");
             }
         } catch (error) {
             hideTypingIndicator();
@@ -156,9 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return "Goodbye! Have a great day!";
         } else if (lcInput.includes("thanks") || lcInput.includes("thank you")) {
             return "You're welcome! 😊";
-        } else if (lcInput.includes("FPT có chia cổ tức năm 2024 không?") || lcInput.includes("Did FPT pay dividends in 2024?")) {
+        }
+        // Corrected conditions below:
+        else if (lcInput.includes("fpt có chia cổ tức năm 2024 không?") || lcInput.includes("did fpt pay dividends in 2024?")) {
             return "Dựa trên thông tin được cung cấp, FPT có lịch chia cổ tức vào ngày 9 tháng 5 năm 2024.Tuy nhiên, thông tin này chua đề cập đến mức chia cụ thể. Bạn có thể tìm hiểu thêm ở đường link sau:";
-        } else if (lcInput.includes("Lợi nhuận quý I/2024 của CMG có tăng không?") || lcInput.includes("Did CMG's profit increase in Q1 2024?")) {
+        } else if (lcInput.includes("lợi nhuận quý i/2024 của cmg có tăng không?") || lcInput.includes("did cmg's profit increase in q1 2024?")) {
             return `Dựa trên thông tin tham khảo mà bạn cung cấp, tôi thấy rằng có hai giao dịch lớn liên quan đến CMG vào ngày 26/03/2024 và 05/03/2024. Tuy nhiên, thông tin này không cung cấp chi tiết về lợi nhuận quý I/2024 của CMG.
             
             Để dự đoán liệu lợi nhuận quý I/2024 của CMG có tăng hay không, chúng ta cần xem xét thêm các yếu tố như:
@@ -179,10 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return "Could you please elaborate a bit more?";
         } else {
             const genericResponses = [
-                "I'm still learning. ",
+                "I'm still learning.", // Removed trailing space
                 "I'm not sure I understand. Can you try asking in a different way?",
                 "Let me think about that for a moment...",
-                "Our Sever is down, comeback later. Sorry"
+                "Our Server is down, come back later. Sorry" // Corrected "Sever" to "Server" and "comeback"
             ];
             return genericResponses[Math.floor(Math.random() * genericResponses.length)];
         }
