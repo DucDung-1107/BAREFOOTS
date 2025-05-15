@@ -156,15 +156,33 @@ document.addEventListener('DOMContentLoaded', () => {
             return "Goodbye! Have a great day!";
         } else if (lcInput.includes("thanks") || lcInput.includes("thank you")) {
             return "You're welcome! 😊";
+        } else if (lcInput.includes("FPT có chia cổ tức năm 2024 không?") || lcInput.includes("Did FPT pay dividends in 2024?")) {
+            return "Dựa trên thông tin được cung cấp, FPT có lịch chia cổ tức vào ngày 9 tháng 5 năm 2024.Tuy nhiên, thông tin này chua đề cập đến mức chia cụ thể. Bạn có thể tìm hiểu thêm ở đường link sau:";
+        } else if (lcInput.includes("Lợi nhuận quý I/2024 của CMG có tăng không?") || lcInput.includes("Did CMG's profit increase in Q1 2024?")) {
+            return `Dựa trên thông tin tham khảo mà bạn cung cấp, tôi thấy rằng có hai giao dịch lớn liên quan đến CMG vào ngày 26/03/2024 và 05/03/2024. Tuy nhiên, thông tin này không cung cấp chi tiết về lợi nhuận quý I/2024 của CMG.
+            
+            Để dự đoán liệu lợi nhuận quý I/2024 của CMG có tăng hay không, chúng ta cần xem xét thêm các yếu tố như:
+            
+            1. Biến động thị trường: CMG là một công ty viễn thông di động, doanh thu và lợi nhuận của họ thường phụ thuộc vào tình hình kinh tế chung và thị trường viễn thông.
+            
+            2. Sản phẩm và dịch vụ: CMG có thể đã ra mắt các sản phẩm mới hoặc cải tiến dịch vụ nào đó, điều này có thể ảnh hưởng đến doanh thu và lợi nhuận.
+            
+            3. Chi phí: Chi phí vận hành, chi phí đầu tư vào mạng lưới di động, chi phí marketing, v.v., cũng có thể ảnh hưởng đến lợi nhuận.
+            
+            4. Số lượng cổ phiếu: Giao dịch lớn vào ngày 26/03/2024 có thể cho thấy sự thay đổi trong sở hữu cổ phiếu, nhưng không nhất thiết là doanh thu hoặc lợi nhuận tăng.
+            
+            5. Báo cáo tài chính: Thông tin chi tiết về doanh thu, chi phí, và lợi nhuận quý I/2024 của CMG công bố sau khi kết thúc quý, thường là vào giữa tháng 5/2024.
+            
+            Vì vậy, để có cái nhìn chính xác hơn về lợi nhuận quý I/2024 của CMG, chúng ta cần chờ báo cáo tài chính chính thức được công bố.`;
+
         } else if (lcInput.length < 5 && lcInput.length > 0) {
             return "Could you please elaborate a bit more?";
         } else {
             const genericResponses = [
-                "That's interesting! Tell me more.",
-                "I'm still learning. Could you rephrase that?",
+                "I'm still learning. ",
                 "I'm not sure I understand. Can you try asking in a different way?",
                 "Let me think about that for a moment...",
-                "Fascinating! What else is on your mind?"
+                "Our Sever is down, comeback later. Sorry"
             ];
             return genericResponses[Math.floor(Math.random() * genericResponses.length)];
         }
